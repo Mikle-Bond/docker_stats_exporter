@@ -2,6 +2,7 @@
 'use strict';
 
 // Requirements
+const url = require('url');
 const http = require('http');
 const prom = require('prom-client');
 const Docker = require('dockerode');
@@ -10,12 +11,15 @@ const commandLineArgs = require('command-line-args')
 // Constants
 const appName = 'dockerstats';
 
+// DOCKER_HOST variable as fallback
+const dockerUrl = url.parse(process.env.DOCKER_HOST || 'none://:0');
+
 // Get args and set options
 const argOptions = commandLineArgs([
     { name: 'port', alias: 'p', type: Number, defaultValue: process.env.DOCKERSTATS_PORT || 9487, },
     { name: 'interval', alias: 'i', type: Number, defaultValue: process.env.DOCKERSTATS_INTERVAL || 15, },
-    { name: 'hostip', type: String, defaultValue: process.env.DOCKERSTATS_HOSTIP || '', },
-    { name: 'hostport', type: Number, defaultValue: process.env.DOCKERSTATS_HOSTPORT || 0, },
+    { name: 'hostip', type: String, defaultValue: process.env.DOCKERSTATS_HOSTIP || dockerUrl.hostname, },
+    { name: 'hostport', type: Number, defaultValue: process.env.DOCKERSTATS_HOSTPORT || dockerUrl.port, },
     { name: 'collectdefault', type: Boolean, },
 ]);
 const port = argOptions.port;
